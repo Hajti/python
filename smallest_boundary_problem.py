@@ -14,6 +14,7 @@ STEP_SIZE = 0.05
 #================================================
 #               POINT CLASS
 #================================================
+#added comment for git exercise
 
 class Point():
     def __init__(self, x, y):
