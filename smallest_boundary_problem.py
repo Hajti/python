@@ -14,7 +14,6 @@ STEP_SIZE = 0.05
 #================================================
 #               POINT CLASS
 #================================================
-#added comment for git exercise
 
 class Point():
     def __init__(self, x, y):
@@ -63,8 +62,9 @@ def initialize_polygon(center_point: Point, radius: int) -> list[Point]:
 #================================================
 #               DRAW POINTS
 #================================================
+#just a comment it's harmless... really
 
-fig, axs = plt.subplots(2)
+fig, axs = plt.subplots(1,2,figsize=(14,7))
 axs[0].set_xlim(0,10)
 axs[0].set_ylim(0,10)
 
