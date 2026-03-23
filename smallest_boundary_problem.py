@@ -181,3 +181,7 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+
+
+# ez egy komment. azért raktam ide, hogy gyakoroljam a git-elést.... ami amúgy egy faszság... mert nem értek hozzá még
