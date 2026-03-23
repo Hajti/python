@@ -63,6 +63,7 @@ def initialize_polygon(center_point: Point, radius: int) -> list[Point]:
 #================================================
 #               DRAW POINTS
 #================================================
+#just a comment it's harmless... really
 
 fig, axs = plt.subplots()
 axs.set_xlim(0,10)
