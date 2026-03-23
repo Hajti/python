@@ -1,5 +1,6 @@
 from matplotlib.patches import Polygon
 from copy import deepcopy
+from matplotlib.animation import FuncAnimation
 import matplotlib.pyplot as plt
 import random
 import math
@@ -63,25 +64,23 @@ def initialize_polygon(center_point: Point, radius: int) -> list[Point]:
 #               DRAW POINTS
 #================================================
 
-fig, axs = plt.subplots(2)
-axs[0].set_xlim(0,10)
-axs[0].set_ylim(0,10)
+fig, axs = plt.subplots()
+axs.set_xlim(0,10)
+axs.set_ylim(0,10)
+axs.set_autoscale_on(False)
 
-axs[1].set_xlim(0,10)
-axs[1].set_ylim(0,10)
-
-def draw_random_points(random_points: list[Point], center_point: Point, indx: int):
-    #axs[indx].plot(center_point.x,center_point.y,color='blue',marker='.')
+def draw_random_points(random_points: list[Point]):
     for i in range(len(random_points)):
-        axs[indx].plot(random_points[i].x,random_points[i].y,color='red',marker='.')
+        axs.plot(random_points[i].x,random_points[i].y,color='red',marker='.')
 
-def draw_polygon(polygon_points: list[Point], indx: int):
+def draw_polygon(polygon_points: list[Point]) -> Polygon:
     polygon_coords = [(p.x, p.y) for p in polygon_points]
     polygon_patch = Polygon(polygon_coords,closed=True,facecolor='skyblue',edgecolor='navy',alpha=0.5)
-    axs[indx].add_patch(polygon_patch)
 
-    for i in range(len(polygon_points)):
-        axs[indx].plot(polygon_points[i].x,polygon_points[i].y,color='navy',marker='.')
+    # for i in range(len(polygon_points)):
+    #     axs.plot(polygon_points[i].x,polygon_points[i].y,color='navy',marker='.')
+
+    return polygon_patch
 
 
 #================================================
@@ -106,6 +105,15 @@ def hill_climb(solution: list[Point], points: list[Point], step_size: float) -> 
         return new_solution
     
     return solution
+
+def anim_func(solution: list[Point], points: list[Point]):
+
+    polygon = None
+
+    for i in range(ITERATIONS):
+        polygon = hill_climb(solution, points,STEP_SIZE)
+
+    return polygon
 
 #================================================
 #               HELPER FUNCTION
@@ -136,11 +144,6 @@ def all_points_inside_polygon(solution: list[Point], points_to_check: list[Point
     return True
 
 #================================================
-#               ANIMATION FUNCTION
-#================================================
-
-
-#================================================
 #               MAIN FUNCTION
 #================================================
 
@@ -148,17 +151,29 @@ def main():
 
     random_points, center_point = initialize_random_points(5.0, 7.0)
     polygon = initialize_polygon(center_point,RADIUS)
-    if all_points_inside_polygon(polygon,random_points):
-        draw_random_points(random_points,center_point,0)
-        draw_random_points(random_points,center_point,1)
-        draw_polygon(polygon,0)
-        print(f'perimeter at the start: {check_polygon_perimeter(polygon)}')
+    
+    if all_points_inside_polygon(polygon,random_points): 
+        print(f'Start perimeter: {check_polygon_perimeter(polygon)}')       
+        
+        draw_random_points(random_points)
+        
+        polygon_patch = draw_polygon(polygon)
+        axs.add_patch(polygon_patch)
+        polygon_state = {'polygon': polygon}
 
-        for i in range(ITERATIONS):
+        def update(frame):
+            nonlocal polygon
             polygon = hill_climb(polygon,random_points,STEP_SIZE)
+            coords = [(p.x, p.y) for p in polygon]
+            polygon_patch.set_xy(coords)
+            return [polygon_patch]
 
-        draw_polygon(polygon,1)
-        print(f'perimeter at the end: {check_polygon_perimeter(polygon)}')
+        anim = FuncAnimation(fig,
+                            update,
+                            ITERATIONS,
+                            interval=30,
+                            blit=True,
+                            repeat=False)
         plt.show()
     else:
         print(f'Generated point is outside polygon!')
