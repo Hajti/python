@@ -16,6 +16,9 @@ class Member():
         self.chromosome = chromosome
         self.fitness = fitness
 
+def generate_chromosome() -> int:
+    return [random.randint(0,9) for _ in range(CHROMOSOME_LENGHT)]
+
 #================================================
 #               FITNESS FUNCTION
 #================================================
@@ -32,9 +35,6 @@ def target_found(member: Member) -> bool:
             return False
             break
     return True
-
-def generate_chromosome() -> int:
-    return [random.randint(0,9) for _ in range(CHROMOSOME_LENGHT)]
 
 #================================================
 #               INITIALIZE POPULATION
@@ -57,19 +57,43 @@ def tournament_selection(population: list[Member], k: int) -> list[Member]:
         parents.append(winner)
     return parents
 
+def crossover(parent_1: Member, parent_2: Member) -> Member:
+    child = Member()
+    return child
 
-# def genetic_algorithm(population):
-#     best = population[0]
-#     while i < ITERATIONS or target_found(best) == False:
-#     return best
+# def generate_new_population(parents: list[Member]) -> list[Member]:
+#     new_population = []
+#     while len(new_population) < POPULATION_SIZE:
+
+#     return new_population
+
+#================================================
+#               GENETIC ALGORITHM
+#================================================
+
+def genetic_algorithm(population: list[Member],new_member) -> Member:
+    best = max(population, key=lambda ind: ind.fitness)
+    i = 0
+    while i < ITERATIONS and target_found(best) == False:
+        parents = tournament_selection(population,TOURNAMENT_SIZE)
+        
+        
+        best = max(population, key=lambda ind: ind.fitness)
+        i += 1
+    return best, i
+
+
+
 
 #================================================
 #               MAIN FUNCTION
 #================================================
 def main():
     population = initialize_population()
-    parents = tournament_selection(population,TOURNAMENT_SIZE)
-    
+    chromosome = [1,2,3,4,5]
+    new_member = Member(chromosome, fitness_function(chromosome))
+    solution, end_iteration = genetic_algorithm(population,new_member)
+    print(f'Found Solution: {solution.chromosome} in {end_iteration}. iteration')
 
 
 if __name__ == '__main__':
