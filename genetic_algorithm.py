@@ -1,5 +1,5 @@
 import random
-import matplotlib
+import matplotlib.pyplot as plt
 
 ITERATIONS = 1000
 POPULATION_SIZE = 15
@@ -103,8 +103,10 @@ def generate_new_population(parents: list[Member]) -> list[Member]:
 #================================================
 
 def genetic_algorithm(population: list[Member]) -> Member:
+    solution_found = False
     generation = 0
-    solution = min(population, key=lambda ind: ind.fitness)
+    solution = []
+    solution.append(min(population, key=lambda ind: ind.fitness))
     
     while generation < ITERATIONS:
         parents = tournament_selection(population,TOURNAMENT_SIZE)
@@ -113,15 +115,16 @@ def genetic_algorithm(population: list[Member]) -> Member:
 
         population = generate_new_population(parents)
         
-        solution = min(population, key=lambda ind: ind.fitness)
-        if target_found(solution):
+        solution.append(min(population, key=lambda ind: ind.fitness))
+        if target_found(solution[generation]):
+            solution_found = True
             print(f'===================================================\nsolution found at {generation}. generation')
-            print(f'Solution chromosome {solution.chromosome}, solution fitness {solution.fitness}')
+            print(f'Solution chromosome {solution[generation].chromosome}, solution fitness {solution[generation].fitness}')
             break
         else:
             #print(f'Iteration: {generation}\nSolution chromosome {solution.chromosome}, solution fitness {solution.fitness}')
             generation += 1
-    return solution, generation
+    return solution, generation, solution_found
 
 
 
@@ -131,9 +134,12 @@ def genetic_algorithm(population: list[Member]) -> Member:
 #================================================
 def main():
     population = initialize_population()
-    solution, generation = genetic_algorithm(population)
-    if not target_found(solution):
-        print(f'Could not find solution\nSolution chromosome {solution.chromosome}, solution fitness {solution.fitness}')
+    solution, generation, solution_found = genetic_algorithm(population)
+    if not solution_found:
+        print(f'Could not find solution\nSolution chromosome {solution[len(solution)].chromosome}, solution fitness {solution[len(solution)].fitness}')
+
+    plt.plot([solution[i].fitness * -1 for i in range(len(solution))],color='blue',linestyle='--')
+    plt.show()
 
 if __name__ == '__main__':
     main()
