@@ -1,6 +1,5 @@
 import random
 import matplotlib
-from copy import deepcopy
 
 ITERATIONS = 1000
 POPULATION_SIZE = 15
