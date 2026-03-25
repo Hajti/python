@@ -1,8 +1,9 @@
 import random
 import matplotlib
+from copy import deepcopy
 
-ITERATIONS = 100
-POPULATION_SIZE = 50
+ITERATIONS = 1000
+POPULATION_SIZE = 15
 CHROMOSOME_LENGHT = 5
 TOURNAMENT_SIZE = 5
 MUTATION_CHANCE = 0.2
@@ -28,7 +29,9 @@ def fitness_function(chromosome: list[int]) -> int:
     for i in range(len(chromosome)):
         if chromosome[i] == TARGET[i]:
             fitness += 1
-    return fitness
+        target_int = int("".join(map(str, TARGET)))
+        chromosome_int = int("".join(map(str, chromosome)))
+    return abs(fitness-(target_int-chromosome_int))
 
 def target_found(member: Member) -> bool:
     for i in range(len(TARGET)):
@@ -51,10 +54,14 @@ def initialize_population():
 
 def tournament_selection(population: list[Member], k: int) -> list[Member]:
     parents = []
-
-    while len(parents) < POPULATION_SIZE:
-        tournament = random.sample(population,k)
-        winner = max(tournament, key=lambda ind: ind.fitness)
+    tournament = []
+    while len(parents) <= POPULATION_SIZE:
+        tournament.clear()
+        for i in range(0,k):
+            random_number = random.randint(0,POPULATION_SIZE-1)
+            member = population[random_number]
+            tournament.append(member)
+        winner = min(tournament, key=lambda win: win.fitness)
         parents.append(winner)
     return parents
 
@@ -65,29 +72,31 @@ def crossover(parent_1: Member, parent_2: Member, crossover_point: int) -> Membe
             chromosome.append(parent_1.chromosome[i])
         else:
             chromosome.append(parent_2.chromosome[i])
-
-    child = Member()
+    fitness = fitness_function(chromosome)
+    child = Member(chromosome, fitness)
     return child
 
 def mutate(child: Member) -> Member:
-    gene_to_mutate = random.randint(0,CHROMOSOME_LENGHT)
+    gene_to_mutate = random.randint(0,CHROMOSOME_LENGHT-1)
     child.chromosome[gene_to_mutate] = random.randint(0,9)
     return child
 
 def generate_new_population(parents: list[Member]) -> list[Member]:
     new_population = []
-    new_population.append(parents[i] for i in range(2))
+    new_population.append(parents[0])
+    new_population.append(parents[1])
     indx = 0
-    while len(new_population) < POPULATION_SIZE:
+    while len(new_population) <= POPULATION_SIZE-1:
         #generate random point for crossover
         crossover_point = random.randint(0,CHROMOSOME_LENGHT)
-        child = crossover(parents[indx], parents[indx],crossover_point)
+        child = crossover(parents[indx], parents[indx+1],crossover_point)
         
         mutation = random.random()
         if mutation >= MUTATION_CHANCE:
             child = mutate(child)
 
         new_population.append(child)
+        indx += 1
     return new_population
 
 #================================================
@@ -96,19 +105,24 @@ def generate_new_population(parents: list[Member]) -> list[Member]:
 
 def genetic_algorithm(population: list[Member]) -> Member:
     generation = 0
-    best = {'Generation': generation,'Member': Member}
-    best = max(population, key=lambda ind: ind.fitness)
+    solution = min(population, key=lambda ind: ind.fitness)
     
-    while generation < ITERATIONS and target_found(best) == False:
+    while generation < ITERATIONS:
         parents = tournament_selection(population,TOURNAMENT_SIZE)
         parents.sort(key=lambda parent: parent.fitness)
         parents.reverse()
 
         population = generate_new_population(parents)
         
-        best = max(population, key=lambda ind: ind.fitness)
-        generation += 1
-    return best, i
+        solution = min(population, key=lambda ind: ind.fitness)
+        if target_found(solution):
+            print(f'===================================================\nsolution found at {generation}. generation')
+            print(f'Solution chromosome {solution.chromosome}, solution fitness {solution.fitness}')
+            break
+        else:
+            #print(f'Iteration: {generation}\nSolution chromosome {solution.chromosome}, solution fitness {solution.fitness}')
+            generation += 1
+    return solution, generation
 
 
 
@@ -118,10 +132,9 @@ def genetic_algorithm(population: list[Member]) -> Member:
 #================================================
 def main():
     population = initialize_population()
-    
-    best_member = genetic_algorithm(population,)
-    print([parent.fitness for parent in parents])
-
+    solution, generation = genetic_algorithm(population)
+    if not target_found(solution):
+        print(f'Could not find solution\nSolution chromosome {solution.chromosome}, solution fitness {solution.fitness}')
 
 if __name__ == '__main__':
     main()
