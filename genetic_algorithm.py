@@ -2,7 +2,7 @@ import random
 import matplotlib.pyplot as plt
 
 ITERATIONS = 1000
-POPULATION_SIZE = 15
+POPULATION_SIZE = 100
 CHROMOSOME_LENGHT = 5
 TOURNAMENT_SIZE = 5
 MUTATION_CHANCE = 0.2
@@ -111,7 +111,7 @@ def genetic_algorithm(population: list[Member]) -> Member:
     while generation < ITERATIONS:
         parents = tournament_selection(population,TOURNAMENT_SIZE)
         parents.sort(key=lambda parent: parent.fitness)
-        parents.reverse()
+        #parents.reverse()
 
         population = generate_new_population(parents)
         
@@ -136,7 +136,7 @@ def main():
     population = initialize_population()
     solution, generation, solution_found = genetic_algorithm(population)
     if not solution_found:
-        print(f'Could not find solution\nSolution chromosome {solution[len(solution)].chromosome}, solution fitness {solution[len(solution)].fitness}')
+        print(f'Could not find solution')
 
     plt.plot([solution[i].fitness * -1 for i in range(len(solution))],color='blue',linestyle='--')
     plt.show()
